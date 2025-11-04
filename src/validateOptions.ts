@@ -12,7 +12,7 @@ const defaultCoverPageFunction: PageFunction = (siteConfig, _pluginConfig, pageT
     <!DOCTYPE html>
     <html>
     <head>
-      
+
     </head>
 
       <body>
@@ -21,7 +21,7 @@ const defaultCoverPageFunction: PageFunction = (siteConfig, _pluginConfig, pageT
           <h2 style="color:#005479;font-size:16px;font-family:sans-serif;">${(pageTitle || siteConfig.tagline)}<h2>
 
           <dl style="font-family:sans-serif;margin-top:10em;display: flex; flex-flow: row; flex-wrap: wrap; width: 600px; overflow: visible;color:#005479;font-size:12px;font-weight:normal;">
-            <dt style="margin-top:1em;flex: 0 0 20%; text-overflow: ellipsis; overflow: hidden;">Author:</dt>    
+            <dt style="margin-top:1em;flex: 0 0 20%; text-overflow: ellipsis; overflow: hidden;">Author:</dt>
             <dd style="margin-top:1em;flex:0 0 80%; margin-left: auto; text-align: left;text-overflow: ellipsis; overflow: hidden;">Your name</dd>
             <dt style="margin-top:1em;flex: 0 0 20%; text-overflow: ellipsis; overflow: hidden;">Date:</dt>
             <dd style="margin-top:1em;flex:0 0 80%; margin-left: auto; text-align: left;text-overflow: ellipsis; overflow: hidden;">${new Date().toISOString().substring(0,10)}</dd>
@@ -116,6 +116,9 @@ const schema = Joi.object<PapersaurusPluginOptions>({
   ignoreCssSelectors: isStringOrArrayOfStrings.default([]),
   jQueryUrl: Joi.string().allow('').default("https://code.jquery.com/jquery-3.6.0.min.js"),
   getPdfFileName: Joi.func().default(() => defaultPdfFileNameFunction),
+  tocTitle: Joi.string().default("Table of Contents"),
+  subjectSplitter: Joi.string().default(" - "),
+  documentVersion: Joi.string().default("Rev 1.1a"),
 });
 
 type ValidateFn = (

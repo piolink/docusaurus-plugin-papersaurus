@@ -33,6 +33,9 @@ export interface PluginOptions {
   ignoreCssSelectors?: string[];
   jQueryUrl?: string;
   getPdfFileName?: FileNameFunction;
+  tocTitle?: string;
+  subjectSplitter?: string;
+  documentVersion?: string;
 }
 
 export type PapersaurusPluginOptions = Required<PluginOptions>;
@@ -41,7 +44,8 @@ export type PageFunction = (
   siteConfig: any,
   pluginConfig: PapersaurusPluginOptions,
   pageTitle: string,
-  version: string
+  version: string,
+  siteAddress: string
 ) => string;
 
 export type FileNameFunction = (

@@ -145,7 +145,7 @@ export async function generatePdfFiles(
         };
 
         // Browse through all documents of this sidebar
-        pickHtmlArticlesRecursive(rootCategory, [], versionInfo, `${siteAddress}docs/`, docusaurusBuildDir, siteConfig);
+        pickHtmlArticlesRecursive(rootCategory, [], versionInfo, `${siteAddress}docs/`, docusaurusBuildDir, siteConfig, pluginOptions);
 
         let productVersion = "";
 
@@ -155,16 +155,16 @@ export async function generatePdfFiles(
 
         // Create all PDF files for this sidebar
         await createPdfFilesRecursive(
-          rootCategory, 
-          [], 
-          [], 
-          versionInfo, 
-          pluginOptions, 
-          siteConfig, 
-          versionBuildDir, 
-          versionPdfPath, 
-          browser, 
-          siteAddress, 
+          rootCategory,
+          [],
+          [],
+          versionInfo,
+          pluginOptions,
+          siteConfig,
+          versionBuildDir,
+          versionPdfPath,
+          browser,
+          siteAddress,
           productTitle,
           productVersion
         );
@@ -226,7 +226,8 @@ function pickHtmlArticlesRecursive(sideBarItem: any,
   version: LoadedVersion,
   rootDocUrl: string,
   htmlDir: string,
-  siteConfig: any) {
+  siteConfig: any,
+  pluginOptions: PapersaurusPluginOptions) {
   switch (sideBarItem.type) {
     case 'category': {
       const hasDocLink = sideBarItem.link && sideBarItem.link.type == 'doc';
@@ -241,7 +242,7 @@ function pickHtmlArticlesRecursive(sideBarItem: any,
             break;
           }
         }
-        readHtmlForItem(sideBarItem, parentTitles, rootDocUrl, path, version, siteConfig);
+        readHtmlForItem(sideBarItem, parentTitles, rootDocUrl, path, version, siteConfig, pluginOptions);
       }
       else {
         sideBarItem.unversionedId = sideBarItem.label || "untitled";
@@ -249,7 +250,7 @@ function pickHtmlArticlesRecursive(sideBarItem: any,
       const newParentTitles = [...parentTitles];
       newParentTitles.push(sideBarItem.label);
       for (const categorySubItem of sideBarItem.items) {
-        pickHtmlArticlesRecursive(categorySubItem, newParentTitles, version, rootDocUrl, htmlDir, siteConfig);
+        pickHtmlArticlesRecursive(categorySubItem, newParentTitles, version, rootDocUrl, htmlDir, siteConfig, pluginOptions);
         if (!hasDocLink && !sideBarItem.stylePath) {
           sideBarItem.stylePath = categorySubItem.stylePath;
           sideBarItem.scriptPath = categorySubItem.scriptPath;
@@ -269,7 +270,7 @@ function pickHtmlArticlesRecursive(sideBarItem: any,
           break;
         }
       }
-      readHtmlForItem(sideBarItem, parentTitles, rootDocUrl, path, version, siteConfig);
+      readHtmlForItem(sideBarItem, parentTitles, rootDocUrl, path, version, siteConfig, pluginOptions);
       break;
     }
     default:
@@ -332,12 +333,13 @@ async function createPdfFilesRecursive(sideBarItem: any,
 
   let documentTitle = sideBarItem.label || '';
 
+  const subjectSplitter = pluginOptions.subjectSplitter || ' - ';
   if (parentTitles.length > 1) {
-    documentTitle = parentTitles.slice(1).join(' / ') + ' / ' + documentTitle;
+    documentTitle = parentTitles.slice(1).join(subjectSplitter) + subjectSplitter + documentTitle;
   }
 
   if (productTitle) {
-    documentTitle = productTitle + ' / ' + documentTitle;
+    documentTitle = productTitle + subjectSplitter + documentTitle;
   }
 
   if (articles.length > 0) {
@@ -363,7 +365,8 @@ function readHtmlForItem(
   rootDocUrl: string,
   htmlDir: string,
   version: LoadedVersion,
-  siteConfig: any) {
+  siteConfig: any,
+  pluginOptions: PapersaurusPluginOptions) {
 
   let htmlFilePath = htmlDir;
   htmlFilePath = join(htmlFilePath, 'index.html');
@@ -409,7 +412,8 @@ function readHtmlForItem(
     // Add parent titles in front of existing title in h1 tag
     let newTitle = item.pageTitle;
     if (parentTitles.length > 1) {
-      newTitle = parentTitles.slice(1).join(' / ') + ' / ' + item.pageTitle;
+      const subjectSplitter = pluginOptions.subjectSplitter || ' - ';
+      newTitle = parentTitles.slice(1).join(subjectSplitter) + subjectSplitter + item.pageTitle;
     }
     const newH1Tag = h1Tag.substring(0, h1Tag.indexOf('>') + 1) + newTitle + h1Tag.substring(h1Tag.indexOf('</h1>'));
     html = html.replace(h1Tag, newH1Tag);
@@ -447,7 +451,7 @@ async function createPdfFromArticles(
 
   const coverPage = await browser.newPage();
   await coverPage.setContent(
-    pluginOptions.getPdfCoverPage(siteConfig, pluginOptions, documentTitle, documentVersion),
+    pluginOptions.getPdfCoverPage(siteConfig, pluginOptions, documentTitle, documentVersion, siteAddress),
     {
       timeout: pluginOptions.puppeteerTimeout
     });
@@ -498,13 +502,15 @@ async function createPdfFromArticles(
   fullHtml = $.html();
 
   // Add table of contents
+  const tocTitle = pluginOptions.tocTitle || 'Table of Contents';
+
   fullHtml = toc('<div id="toc"></div>' + fullHtml, {
     anchorTemplate: function (id: string) {
       return `<a class="toc-target" href="${id}" id="${id}"></a>`;
     },
     selectors: 'h1,h2,h3',
     parentLink: false,
-    header: '<h1 class="ignoreCounter">Contents</h1>',
+    header: `<h1 class="ignoreCounter">${tocTitle}</h1>`,
     minLength: 0,
     addId: false //=default
   });
@@ -623,8 +629,8 @@ async function createPdfFromArticles(
     await page.pdf({
       path: targetFile,
       format: 'a4',
-      headerTemplate: pluginOptions.getPdfPageHeader(siteConfig, pluginOptions, documentTitle, documentVersion),
-      footerTemplate: pluginOptions.getPdfPageFooter(siteConfig, pluginOptions, documentTitle, documentVersion),
+      headerTemplate: pluginOptions.getPdfPageHeader(siteConfig, pluginOptions, documentTitle, documentVersion, siteAddress),
+      footerTemplate: pluginOptions.getPdfPageFooter(siteConfig, pluginOptions, documentTitle, documentVersion, siteAddress),
       displayHeaderFooter: true,
       printBackground: true,
       scale: 1,
