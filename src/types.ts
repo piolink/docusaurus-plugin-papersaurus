@@ -6,6 +6,7 @@
  */
 
 export interface PluginOptions {
+  concurrency?: number;
   addDownloadButton?: boolean;
   autoBuildPdfs?: boolean;
   downloadButtonText?: string;
@@ -31,7 +32,6 @@ export interface PluginOptions {
   productTitles?: string[];
   useExtraPaths?: UsePath[];
   ignoreCssSelectors?: string[];
-  jQueryUrl?: string;
   getPdfFileName?: FileNameFunction;
   tocTitle?: string;
   subjectSplitter?: string;
@@ -45,6 +45,7 @@ export type PageFunction = (
   pluginConfig: PapersaurusPluginOptions,
   pageTitle: string,
   version: string,
+  language: string,
   siteAddress: string
 ) => string;
 
@@ -56,7 +57,8 @@ export type FileNameFunction = (
   parentTitles: string[],
   parentIds: string[],
   version: string,
-  versionPath: string
+  versionPath: string,
+  language: string
 ) => string;
 
 export type UsePath = {

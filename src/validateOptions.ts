@@ -1,5 +1,7 @@
 import { Joi } from "@docusaurus/utils-validation";
 import { PluginOptions, PapersaurusPluginOptions, PageFunction, FileNameFunction, Margins, UsePath } from "./types";
+import os from 'os';
+
 const he = require('he');
 
 const isStringOrArrayOfStrings = Joi.alternatives().try(
@@ -7,7 +9,7 @@ const isStringOrArrayOfStrings = Joi.alternatives().try(
   Joi.array().items(Joi.string())
 );
 
-const defaultCoverPageFunction: PageFunction = (siteConfig, _pluginConfig, pageTitle, _version) => {
+const defaultCoverPageFunction: PageFunction = (siteConfig, _pluginConfig, pageTitle, _version, _language) => {
   return `
     <!DOCTYPE html>
     <html>
@@ -33,7 +35,7 @@ const defaultCoverPageFunction: PageFunction = (siteConfig, _pluginConfig, pageT
   `;
 };
 
-const defaultPageHeaderFunction: PageFunction = (_siteConfig, pluginConfig, pageTitle, _version) => {
+const defaultPageHeaderFunction: PageFunction = (_siteConfig, pluginConfig, pageTitle, _version, _language) => {
   return `
     <div style="justify-content: center;align-items: center;height:2.5cm;display:flex;margin: 0 1.5cm;color: #005479;font-size:9px;font-family:sans-serif;width:100%;">
       <span style="flex-grow: 1; width: 50%; text-align:left;">${pluginConfig.author}</span>
@@ -42,7 +44,7 @@ const defaultPageHeaderFunction: PageFunction = (_siteConfig, pluginConfig, page
   `;
 };
 
-const defaultPageFooterFunction: PageFunction = (_siteConfig, pluginConfig, _pageTitle, _version) => {
+const defaultPageFooterFunction: PageFunction = (_siteConfig, pluginConfig, _pageTitle, _version, _language) => {
   return `
     <div style="height:1cm;display:flex;margin: 0 1.5cm;color: #005479;font-size:9px;font-family:sans-serif;width:100%;">
       <span style="flex-grow: 1; width: 33%;">© ${pluginConfig.author}</span>
@@ -60,7 +62,8 @@ const defaultPdfFileNameFunction: FileNameFunction = (
   _parentTitles: string[],
   parentIds: string[],
   _version: string,
-  _versionPath: string) => {
+  _versionPath: string,
+  _language) => {
   let pdfFilename = he.decode(pageId);
   if (parentIds.length > 1) {
     pdfFilename = parentIds.slice(1).filter(id => id != "").join('-') + '-' + pdfFilename;
@@ -103,6 +106,7 @@ const schema = Joi.object<PapersaurusPluginOptions>({
   author: Joi.string().default("").allow(""),
   footerParser: Joi.object<RegExp>().instance(RegExp),
   keepDebugHtmls: Joi.boolean().default(false),
+  concurrency: Joi.number().default(os.cpus().length),
   puppeteerTimeout: Joi.number().default(30000),
   sidebarNames: isStringOrArrayOfStrings.default([]),
   versions: isStringOrArrayOfStrings.default([]),
@@ -114,7 +118,6 @@ const schema = Joi.object<PapersaurusPluginOptions>({
     localPath: Joi.string().required(),
   })).default([]),
   ignoreCssSelectors: isStringOrArrayOfStrings.default([]),
-  jQueryUrl: Joi.string().allow('').default("https://code.jquery.com/jquery-3.6.0.min.js"),
   getPdfFileName: Joi.func().default(() => defaultPdfFileNameFunction),
   tocTitle: Joi.string().default("Table of Contents"),
   subjectSplitter: Joi.string().default(" - "),
