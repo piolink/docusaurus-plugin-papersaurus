@@ -22,9 +22,10 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@docusaurus/core": "^3.5.2",
-    "@docusaurus/module-type-aliases": "^3.5.2",
-    "@docusaurus/plugin-content-docs": "^3.5.2",
+    "@docusaurus/core": "^3.9.2",
+    "@docusaurus/module-type-aliases": "^3.9.2",
+    "@docusaurus/plugin-content-docs": "^3.9.2",
+    "@types/jquery": "^3.5.32",
     "cheerio": "^1.0.0",
     "easy-pdf-merge": "^0.2.6",
     "express": "^5.1.0",

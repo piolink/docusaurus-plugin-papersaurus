@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 export interface PluginOptions {
+    concurrency?: number;
     addDownloadButton?: boolean;
     autoBuildPdfs?: boolean;
     downloadButtonText?: string;
@@ -30,15 +31,14 @@ export interface PluginOptions {
     productTitles?: string[];
     useExtraPaths?: UsePath[];
     ignoreCssSelectors?: string[];
-    jQueryUrl?: string;
     getPdfFileName?: FileNameFunction;
     tocTitle?: string;
     subjectSplitter?: string;
     documentVersion?: string;
 }
 export type PapersaurusPluginOptions = Required<PluginOptions>;
-export type PageFunction = (siteConfig: any, pluginConfig: PapersaurusPluginOptions, pageTitle: string, version: string, siteAddress: string) => string;
-export type FileNameFunction = (siteConfig: any, pluginConfig: PapersaurusPluginOptions, pageTitle: string, pageId: string, parentTitles: string[], parentIds: string[], version: string, versionPath: string) => string;
+export type PageFunction = (siteConfig: any, pluginConfig: PapersaurusPluginOptions, pageTitle: string, version: string, language: string, siteAddress: string) => string;
+export type FileNameFunction = (siteConfig: any, pluginConfig: PapersaurusPluginOptions, pageTitle: string, pageId: string, parentTitles: string[], parentIds: string[], version: string, versionPath: string, language: string) => string;
 export type UsePath = {
     serverPath: string;
     localPath: string;

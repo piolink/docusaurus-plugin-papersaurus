@@ -6,4 +6,4 @@
  */
 import { PapersaurusPluginOptions } from './types';
 import { Props } from '@docusaurus/types';
-export declare function generatePdfFiles(outDir: string, pluginOptions: PapersaurusPluginOptions, { siteConfig, plugins }: Props): Promise<void>;
+export declare function generatePdfFiles(outDir: string, pluginOptions: PapersaurusPluginOptions, { siteConfig, plugins }: Props, language: string): Promise<void>;
